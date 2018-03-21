@@ -9,22 +9,22 @@
 			<h3 class="text-center text-danger">change your info</h3>
 			<form action="<?= base_url() ?>user/edit" method="post" class="text-center" enctype="multipart/form-data">
 
-				<!--<h6 class="text-center text-primary">
+				<h6 class="text-center text-primary">
 				 	<?php if(!empty($msg) && empty($this->session->flashdata('error')) ){
 				 		echo $msg; 
 				 	} ?> 
-				<h6> -->
+				<h6> 
 
 				<br>
-				<input type="file" name="file" size="20" />
+				<input type="file" name="userfile" size="20" />
 				<br><br>
 
 				<div class="form-group">
-					<input type="text" class="form-control" placeholder="<?= $this->session->userdata("user")->name ?>" name="name">
+					<input type="text" class="form-control" placeholder="name" name="name" value="<?= $this->session->userdata("user")->name ?>">
 				</div>
 
 				<div class="form-group">
-					<input type="text" class="form-control" placeholder="<?= $this->session->userdata("user")->surname ?>" name="surname">
+					<input type="text" class="form-control" placeholder="surname" name="surname" value="<?= $this->session->userdata("user")->surname ?>">
 				</div>
 
 				<div class="form-group">

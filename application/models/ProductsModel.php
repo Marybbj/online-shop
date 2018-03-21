@@ -32,6 +32,22 @@ class ProductsModel extends CI_Model{
 		$this->db->where('id',$id);
 		$this->db->update('products',$data);
 	}	
-}
 
+	function sortHighPrice(){
+		$this->db->select('*');
+		$this->db->from('users');
+		$this->db->join('products','users.id = products.user_id');
+		$this->db->order_by('price','DESC');
+		return $this->db->get()->result();
+	}
+
+		function sortLowPrice(){
+		$this->db->select('*');
+		$this->db->from('users');
+		$this->db->join('products','users.id = products.user_id');
+		$this->db->order_by('price');
+		return $this->db->get()->result();
+	}
+
+}
 ?>

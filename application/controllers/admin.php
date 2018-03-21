@@ -18,7 +18,7 @@ class Admin extends CI_Controller{
 		foreach ($product as $p) {
 			$myNumber = $p->price;
 			$id = $p->id;
-			$percentToGet = 30;
+			$percentToGet = 10;
 			$percentInDecimal = $percentToGet / 100;
 			$percent = $percentInDecimal * $myNumber;
 			$data=$this->ProductsModel->percentProducts(array("percent"=>$percent),$id);
@@ -48,7 +48,6 @@ class Admin extends CI_Controller{
 		$data=$this->ProductsModel->topProduct(array("top_product"=>1),$id);
 		redirect('product/all');	
 	}
-
 
 }
 ?>

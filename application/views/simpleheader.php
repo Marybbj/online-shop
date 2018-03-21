@@ -17,6 +17,10 @@
 			font-family: monospace;
 		}
 
+		img{
+			object-fit: cover;
+		}
+
 	</style>
 </head>
 <body>	

@@ -49,19 +49,19 @@
 				<br><br>
 
 				<div class="form-group">
-					<input type="text" class="form-control" placeholder="enter name" name="name">
+					<input type="text" class="form-control" placeholder=" name" name="name">
 				</div>
 
 				<div class="form-group">
-					<input type="text" class="form-control" placeholder="enter surname" name="surname">
+					<input type="text" class="form-control" placeholder=" surname" name="surname">
 				</div>
 
 				<div class="form-group">
-					<input type="email" class="form-control" placeholder="enter email" name="email">
+					<input type="email" class="form-control" placeholder=" email" name="email">
 				</div>
 
 				<div class="form-group">
-					<input type="password" class="form-control" placeholder="enter password" name="pswd">
+					<input type="password" class="form-control" placeholder=" password" name="pswd">
 				</div>
 
 				<div class="form-group">

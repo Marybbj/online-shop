@@ -54,6 +54,8 @@ $config['index_page'] = '';
 */
 // $config['uri_protocol']	= 'REQUEST_URI';
 $config['uri_protocol'] = "PATH_INFO";
+
+
 /*
 |--------------------------------------------------------------------------
 | URL suffix

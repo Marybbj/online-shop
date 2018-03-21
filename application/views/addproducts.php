@@ -33,6 +33,12 @@
 				<button type="submit" class="btn btn-primary">save</button>
 				
 			</form>
+			
+			<br>
+			<p class="text-primary text-center">
+				the product will be activated,
+				<br> when <span class="text-danger">admin </span> accepted it.
+			</p>
 
 		</div>
 	</div>

@@ -57,8 +57,8 @@ class Product extends CI_Controller{
 	}
 
 	function all($id=false){
-			$this->load->model('ProductsModel');
-			$this->load->model('UserModel');
+		$this->load->model('ProductsModel');
+		$this->load->model('UserModel');
 		if(!empty($this->session->userdata('user'))){
 			$user = $this->session->userdata('user');
 			$this->load->view('header',array("user"=>$user));
@@ -72,10 +72,10 @@ class Product extends CI_Controller{
 					}
 				}
 			}
-			$data=$this->UserModel->findUserProduct($id);
 
-			$this->load->view('allproducts',array("data"=> $product,"id"=>$id));	
+			$this->load->view('allproducts',array("data"=> $product,"id"=>$id));
 			$this->load->view('footer');
+
 		}else{
 			$this->load->model('ProductsModel');
 			$product = $this->ProductsModel->findAllProducts();
@@ -85,12 +85,75 @@ class Product extends CI_Controller{
 		}
 	}
 
+	function sortLow(){
+		$user = $this->session->userdata('user');
+		$this->load->model('ProductsModel');
+		$data=$this->ProductsModel->sortLowPrice();
+		$this->mylibrary->view('sortLow',array("user"=>$user,"data"=>$data));
+	}
 
-	// function findUserProducts(){
-	// 	$y = $this->UserModel->findUserProduct();
-	// 	$this->load->view('allproducts',array("x"=> ));	
-	// }
+	function sortHigh(){
+		$user = $this->session->userdata('user');
+		$this->load->model('ProductsModel');
+		$data=$this->ProductsModel->sortHighPrice();
+		$this->mylibrary->view('sortHigh',array("user"=>$user,"data"=>$data));
+	}
 
+	function buy(){
+		$this->load->model('UserModel');
+		$this->load->model('ProductsModel');
+		$seller_id = $this->input->post("seller_id");
+		$data = $this->UserModel->find(array("id"=> $seller_id));
+		$data = $data[0];
 
+		$price = $this->input->post("price");
+		$adminAmount = $price / 100 * 10;
+		$sellerAmount = $price - $adminAmount;
+		$id1 = $data->id;
+		$id2 =  $this->session->userdata('user')->id;
+		if($this->session->userdata('user')->amount - $price >= 0){
+
+			$plus = $data->amount + $sellerAmount;
+			$minus = $this->session->userdata('user')->amount - $price;
+			$data1 = $this->UserModel->moneySeller($id1,array(
+					"amount"=> $plus
+				));
+
+			$data2 = $this->UserModel->moneyBuyer($id2,array(
+					"amount"=> $minus
+				));
+			
+			$data3 = $this->UserModel->find(array("type"=> 1));
+			$data3[0]->amount = $data3[0]->amount + $adminAmount;
+			$data3 = $this->UserModel->moneySeller($data3[0]->id,array(
+					"amount"=> $data3[0]->amount));
+
+			$data = $this->UserModel->find(array("id"=> $id2));
+			$this->session->set_userdata("user",$data[0]);
+			
+		}else{
+		echo '<h1>NOT charged!</h1>';
+		}
+
+		require_once('./config.php');
+		$token  = $_POST['stripeToken'];
+		$email  = $_POST['stripeEmail'];
+
+		$price = (round($price));
+		$customer = \Stripe\Customer::create(array(
+			'email' => $email,
+			'source'  => $token
+		));
+
+		$charge = \Stripe\Charge::create(array(
+			'customer' => $customer->id,
+			'amount'   => $price,
+			'currency' => 'usd'
+		));
+
+		$user = $this->session->userdata('user');
+		redirect("product/all");
+	}
+	
 }
 ?>

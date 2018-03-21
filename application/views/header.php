@@ -10,6 +10,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+	<script src="<?=base_url();?>assets/js/script.js" type="text/javascript" charset="utf-8" async defer></script>
+
 
 	<style  type="text/css">
 	
@@ -17,6 +19,10 @@
 			padding: 0;
 			margin: 0;
 			font-family: monospace;
+		}
+
+		img{
+			object-fit: cover;
 		}
 
 	</style>
@@ -42,6 +48,9 @@
 				<?php if(isset($user->type)){ ?>
 					<li class="nav-item">
 						<a class="nav-link" href="<?= base_url() ?>admin/accept" >Requests</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= base_url() ?>user/onlineUsers" >Last signin</a>
 					</li>
 				<?php } ?>
 				

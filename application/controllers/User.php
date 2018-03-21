@@ -3,9 +3,11 @@ class User extends CI_Controller{
 
 	function signup(){
 		$msg = "Welcome to our site";
-		$this->load->view("signup",array("msg"=> $msg));
+		$this->load->view("signup",
+			array(
+				"msg"=> $msg
+			));
 		$this->load->view('footer');
-
 	}
 
 	function insert(){
@@ -51,7 +53,6 @@ class User extends CI_Controller{
 				'required'    => 'Խնդրում ենք լրացնել %s Դաշտը:',
 				'min_length'  => '%s ը պետք է լինի ամենաքիչը 5 նիշ:',
 				'max_length'  => '%s ը պետք է լինի ամենաշատը 12 նիշ:',
-
 			)
 		);
 		$this->form_validation->set_rules(
@@ -68,7 +69,7 @@ class User extends CI_Controller{
 			redirect('user/signup'); 	
 		}else{
 			$this->load->model('UserModel');
-			$user_img = !empty($this->session->userdata('userfile')) ? $this->session->userdata('userfile') : 'none';
+			$user_img = !empty($this->session->userdata('userfile')) ? $this->session->userdata('userfile') : 'none.png';
 
 			$this->UserModel->insert(array(
 				'name' => $name,
@@ -96,45 +97,112 @@ class User extends CI_Controller{
 		$email = $this->input->post('email-signin');
 		$pass = $this->input->post('pswd-signin');
 		$this->load->model('UserModel');
-		$data = $this->UserModel->find(array("email"=> $email));
-
+		$data = $this->UserModel->find(
+			array(
+				"email"=> $email
+			));
 		if(!empty($data)){
 			$data = $data[0];
-			if(password_verify($pass,$data->pass) && !empty($pass)){
+			if(password_verify($pass,$data->pass) && !empty($pass) && $data->false_pass != 3){
+
+				//---> for email msg <---
+
+				// if($data->active != 1){
+				// 	$config = 
+				//(
+				// 		'protocol' => 'smtp',
+				// 		'smtp_host' => 'locallhost',
+				// 		'smtp_port' => 25,
+				// 		"mailpath"  => 'C:\xampp\sendmail',
+  				// 'smtp_user' => 'ourexample1@gmail.com', 
+  				// 'smtp_pass' => 'example98', 
+  				// 'mailtype' => 'html',
+  				// 'smtp_timeout' => '4',
+  				// "starttls"  => true,
+  				// 'charset' => 'utf-8',
+  				// 'wordwrap' => TRUE
+				// 	);
+
+				// 	$this->load->library('email', $config);
+				// 	$message = 'message';
+				// 	$this->email->set_newline("\r\n");
+    			//$this->email->from('ourexample1@gmail.com'); 
+    			//$this->email->to($data->email);
+    			//$this->email->subject('subject');
+    			//$this->email->message($message);
+    			//if($this->email->send()){
+    			//	echo 'Email sent.';
+    			//}else{
+    			//	show_error($this->email->print_debugger());
+    			//}
+
+				// 	$this->session->set_flashdata('error',"Մուտք գործեք email գրանցումը  հաստատելու համար:");
+				// 	redirect('user/login'); 
+				// }
 
 				$remember = $this->input->post("remember");
+
 				if($remember != NULL && !empty($remember)){
+
 					setcookie('email',$email,time() + (86400 *30), "/");
 					setcookie('pswd_signin',$pass,time() + (86400 *30), "/");
+
 				}else{
+
 					if(isset($_COOKIE['email'])){
 						setcookie("email","");
 					}if(isset($_COOKIE['pswd_signin'])){
 						setcookie("pswd_signin","");
 					}
+
+				}
+
+				$x = time();
+				$time = $this->UserModel->loginTime($email,
+					array(
+						"login_time"=> $x
+					));
+
+				$setTime = $this->input->post('set-blocktime');				
+				if($x > $data->block_time + 3 ){
+					$count = 0;
+					$false = $this->UserModel->falsePass(
+						array(
+							"false_pass"=> $count),
+							$email
+						);
 				}
 
 				$this->session->set_userdata("user",$data);
 				$this->load->view('header');
 				redirect('product/all');
 				$this->load->view('footer');
+
 			}else{
+
 				$this->load->model('UserModel');
 				$count = $data->false_pass;
-				if($email){
-					if( $count == "" || $count == "0" || $count == "1" || $count == "2"){
-						$count = $count + 1;
-						$false = $this->UserModel->falsePass(array("false_pass"=> $count),$email);
-						$this->session->set_flashdata('error',"password-ը մուտքագրված է սխալ:");
-					}else if($count >=3){
-						$t = time();
-						$time = $this->UserModel->time(array("block_time"=> $t),$email);
-						$this->session->set_flashdata('error',"Դուք արգելափակվել եք 5ր․ password-ը 3անգամ սխալ մուտքագրելու համար:");
 
-						$block_t =  $data->block_time;
-						if($block_t >= $block_t + 300 ){
-							$count = 0;
-							$false = $this->UserModel->falsePass(array("false_pass"=> $count),$email);
+				if($email){
+					if( $count < 3){
+
+						$count = $count + 1;
+						$false = $this->UserModel->falsePass(
+							array(
+								"false_pass"=> $count),
+								$email
+							);
+						$this->session->set_flashdata('error',"password-ը մուտքագրված է սխալ:");
+
+						if($count == 3){
+
+							$t = time();
+							$time = $this->UserModel->time(
+								array(
+									"block_time"=> $t),
+									$email
+								);
+							$this->session->set_flashdata('error',"Դուք արգելափակվել եք 5ր․ password-ը 3 անգամ սխալ մուտքագրելու համար:");
 						}
 					}
 				}
@@ -160,33 +228,68 @@ class User extends CI_Controller{
 		$email=$this->session->userdata("user")->email;
 		$new_pass =$this->input->post("new-pass");
 		$new_pass2 =$this->input->post("new-pass2");
-		$userfile = $this->input->post("file");
 		$id = $this->session->userdata('user')->id;
+
+		// $userfile = $this->input->post("file");
+		$config['upload_path'] = './uploads';
+		$config['allowed_types'] = 'gif|jpg|png|jpeg';
+		$config['max_size']     = '10000000';
+		$this->load->library('upload', $config);
+		$this->upload->initialize($config);
+		$this->upload->do_upload();
+
 		$this->load->model('UserModel');
-		$data=$this->UserModel->find(array("email"=>$email));
+		$data=$this->UserModel->find(
+			array(
+				"email"=>$email
+			));
+
 		if(!empty($data)){
 			$data=$data[0];
 			if(empty($new_pass) && empty($new_pass2) ){
 				$new_pass = $old_pass;
-			}if(empty($new_name)){
+			}
+			if(empty($new_pass)){
+				$new_pass = $old_pass;
+			}
+			if(empty($new_pass2)){
+				$new_pass = $old_pass;
+			}
+			if(empty($new_name)){
 				$new_name = $name;
-			} if(empty($new_surname)){
-				$new_surname = $surname;
-			}if(empty($new_name) && empty($new_surname)){
-				$new_name = $name;
+			} 
+			if(empty($new_surname)){
 				$new_surname = $surname;
 			}
-			$new_pass = password_hash($new_pass,PASSWORD_DEFAULT);
+			if(empty($new_name) && empty($new_surname)){
+				$new_name = $name;
+				$new_surname = $surname;
+			 }
+			//if(empty($userfile)){
+			// 	$userfile = $this->session->userdata('user')->userfile;
+			// }
 			if(password_verify($old_pass,$data->pass)){
+				$new_pass = password_hash($new_pass,PASSWORD_DEFAULT);
 				$this->load->model("UserModel");
-				$data=$this->UserModel->edit($id,array("pass"=>$new_pass,"name"=>$new_name,"surname"=>$new_surname,"userfile"=>$userfile));
+				$data=$this->UserModel->edit($id,array(
+					"pass"=>$new_pass,
+					"name"=>$new_name,
+					"surname"=>$new_surname,
+					"userfile" => $this->upload->data('file_name')
+				));
+
 				$user = $this->session->userdata('user');
-				$this->load->view('header',array("user"=>$user));
+				$this->load->view('header',array(
+						"user"=>$user
+					));
 				$this->load->view('edit');
+
 			}else{
 				// $this->session->set_flashdata("error","password is incorrect");
 				$user = $this->session->userdata('user');
-				$this->mylibrary->view('edit',array("user"=>$user));	
+				$this->mylibrary->view('edit',array(
+						"user"=>$user
+					));	
 			}
 		}
 
@@ -208,6 +311,7 @@ class User extends CI_Controller{
 				'matches[new-pass]' => 'ծածկագիրը և ծածկագրի կրկնումը պետք է լինի նույնը:',
 			)
 		);
+
 		if ($this->form_validation->run() == FALSE){
 			$this->session->set_flashdata('error',validation_errors());
 		}else{
@@ -215,6 +319,27 @@ class User extends CI_Controller{
 		}
 	}
 
+	function onlineUsers(){
+		date_default_timezone_set("Asia/Yerevan");
+
+		$user = $this->session->userdata('user');
+		$this->load->model('UserModel');
+		$data=$this->UserModel->findAll();
+
+		for($i = 0; $i < count($data); $i++){
+			if(!empty($data[$i]->login_time)){
+				$data[$i]->login_time = date('d-m-y'. " / " .'h:i', $data[$i]->login_time);				
+			}
+			if(!empty($data[$i]->block_time)){
+				$data[$i]->block_time = date('d-m-y'. " / " .'h:i', $data[$i]->block_time);	
+			}
+		}
+		$this->mylibrary->view('onlineUsers',
+			array(
+				"user"=>$user,
+				"data"=>$data
+			));
+	}
 
 
 }

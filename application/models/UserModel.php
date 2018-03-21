@@ -37,5 +37,30 @@ class UserModel extends CI_Model{
 		//SELECT * from users join products on users.id = $id and user_id = $id
 	}
 
+	function loginTime($email,$x){
+		$this->db->where("email" ,$email);
+		$this->db->update('users',$x);
+		// return $this->db->get()->result();
+	}
+
+	function getUsersOnline(){
+		return $this->db->get("users")->result();
+	}
+
+	function moneySeller($id,$data1){
+		$this->db->where("id" ,$id);
+		$this->db->update('users',$data1);
+	}
+
+	function moneyBuyer($id,$data2){
+		$this->db->where("id" ,$id);
+		$this->db->update('users',$data2);
+	}
+
+	function moneyAdmin($id,$data3){
+		$this->db->where("id" ,$id);
+		$this->db->update('users',$data3);
+	}
+
 }
 ?>
